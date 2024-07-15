@@ -1,12 +1,13 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
+const url= require('url');
 
 const app = express();
 const port = 8080;
 
 // Load 404 page content
-const page404 = fs.readFileSync("404.html", "utf-8", (err, data) => {
+const page404 = fs.readFileSync("public/404.html", "utf-8", (err, data) => {
     if (err) throw err;
     return data;
 });
@@ -14,17 +15,16 @@ const page404 = fs.readFileSync("404.html", "utf-8", (err, data) => {
 // Serve static files from the root directory
 app.use(express.static(path.join(__dirname)));
 
-// Handle root route
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "index.html"));
-});
+app.get((req, res) => {
+    let filename = "";
+    const q = url.parse(req.url, true);
 
-app.get('/about', (req, res) => {
-    res.sendFile(path.join(__dirname, "about.html"));
-})
-
-app.get('/contact-me', (req, res) => {
-    res.sendFile(path.join(__dirname, "contact-me.html"));
+    if (q.pathname === "/") {
+        filename = "./public/index.html";
+    } else {
+        filename = "public/" + q.pathname;
+    }
+    res.send(filename)
 })
 
 // Handle all other routes
